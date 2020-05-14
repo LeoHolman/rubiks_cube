@@ -19,6 +19,10 @@ class RubiksCube():
              ¯ ¯ ¯ 
     """  # noqa W291
 
+    MACRON_LINE = ' ¯ ¯ ¯ '
+    UNDERSCORE_LINE = ' _ _ _ '
+    BLOCK_INDENT = ' ' * 8
+
     def __init__(self):
         self.Red = [['R', 'R', 'R'],
                     ['R', 'R', 'R'],
@@ -44,36 +48,40 @@ class RubiksCube():
                        ['O', 'O', 'O'],
                        ['O', 'O', 'O']]
 
+    def _make_row_str(self, row):
+        return '|' + '|'.join(row) + '|'
+
     def __str__(self):
-        macron_line = ' ¯ ¯ ¯ '
-        underscore_line = ' _ _ _ '
-        block_indent = ' ' * 8
-
-        def make_row_str(row):
-            return '|' + '|'.join(row) + '|'
-
-        def make_indended_block_str(block, indent_level):
+        def make_indended_block_str(block, indent):
             block_str = ''.join([
-                block_indent * indent_level, underscore_line, '\n',
-                block_indent * indent_level, make_row_str(block[0]), '\n',
-                block_indent * indent_level, make_row_str(block[1]), '\n',
-                block_indent * indent_level, make_row_str(block[2]), '\n',
-                block_indent * indent_level, macron_line, '\n',
+                self.BLOCK_INDENT * indent, self.UNDERSCORE_LINE, '\n',
+                self.BLOCK_INDENT * indent, self._make_row_str(block[0]), '\n',
+                self.BLOCK_INDENT * indent, self._make_row_str(block[1]), '\n',
+                self.BLOCK_INDENT * indent, self._make_row_str(block[2]), '\n',
+                self.BLOCK_INDENT * indent, self.MACRON_LINE, '\n',
             ])
             return block_str
 
         middle_colors = ['Yellow', 'Red', 'White', 'Orange']
-        middle_rows = [((underscore_line + ' ') * (len(middle_colors) - 1))
-                       + underscore_line]
+        middle_rows = [((self.UNDERSCORE_LINE + ' ') * (len(middle_colors)-1))
+                       + self.UNDERSCORE_LINE]
         for i in range(3):
-            row_list = [make_row_str(self.__getattribute__(color)[i])
+            row_list = [self._make_row_str(self.__getattribute__(color)[i])
                         for color in middle_colors]
             middle_rows.append(' '.join(row_list))
-        middle_rows.append(((macron_line + ' ') * (len(middle_colors) - 1))
-                           + macron_line)
+        middle_rows.append(((self.MACRON_LINE + ' ') * (len(middle_colors)-1))
+                           + self.MACRON_LINE)
 
         top = make_indended_block_str(self.Green, 1)
         middle = '\n'.join(middle_rows)
         bottom = make_indended_block_str(self.Blue, 1)
 
         return ''.join([top, middle, '\n', bottom])
+
+    def get_face_str(self, face_name):
+        face = self.__getattribute__(face_name)
+        middle_rows = [self._make_row_str(row) for row in face]
+        face = self.UNDERSCORE_LINE + '\n' + \
+            '\n'.join(middle_rows) + '\n' + \
+            self.MACRON_LINE
+        return face
